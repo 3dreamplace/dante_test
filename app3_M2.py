@@ -1,9 +1,6 @@
 import requests
 import os
-from flask import Flask  # Adicionado import do Flask
 from langsmith import Client
-
-app = Flask(__name__)  # Instanciando o Flask corretamente
 
 LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
 LANGCHAIN_TRACING_V2 = os.getenv("LANGCHAIN_TRACING_V2", "true")
@@ -43,9 +40,8 @@ def get_response_from_api(prompt):
         client.end_run(run["id"], error=error_msg)
         return error_msg, None
 
-@app.route("/")  # Adicionada uma rota para evitar erro de execução
-def home():
-    return "API is running!"
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)  # Adicionado para rodar corretamente no Render
+    prompt = "What are the legal rights of employees in Brazil?"
+    gpt_response, vectara_response = get_response_from_api(prompt)
+    print("GPT Response:", gpt_response)
+    print("Vectara Response:", vectara_response)
