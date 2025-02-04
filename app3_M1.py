@@ -2,31 +2,31 @@ import requests
 import os
 from langsmith import Client
 
-LANGCHAIN_API_KEY = os.getenv("LANGCHAIN_API_KEY")
-LANGCHAIN_TRACING_V2 = os.getenv("LANGCHAIN_TRACING_V2", "true")
-LANGCHAIN_ENDPOINT = os.getenv("LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com")
-
+os.environ["LANGCHAIN_API_KEY"] = "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"
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 client = Client()
 
 # Define the API URL
 api_url = "https://brazilian-laws-chatbot.onrender.com/query-llm"
 
 def get_response_from_api(prompt):
-    # ✅ FIX: Added `run_type`
-    run = client.create_run(name="API Query", inputs={"query": prompt}, run_type="chain")
+    run = client.create_run(name="API Query", inputs={"query": prompt})
 
     try:
         # Define the payload
         payload = {"query": prompt}
 
+        # Make a POST request to the API
         response = requests.post(api_url, json=payload)
 
+        # Check if the response is successful
         if response.status_code == 200:
             full_response = response.json()
             gpt_response = full_response.get("gpt_response", "No response from API.")
             vectara_response = full_response.get("vectara_response", "No Vectara response.")
 
-            # ✅ Log output to LangSmith
+            # Log output to LangSmith
             client.end_run(run["id"], outputs={"gpt_response": gpt_response, "vectara_response": vectara_response})
 
             return gpt_response, vectara_response
